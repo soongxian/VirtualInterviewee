@@ -1,0 +1,74 @@
+<main class="chat-shell">
+  <header class="chat-header">
+    <div class="brand-mark" aria-hidden="true">V</div>
+    <div>
+      <p class="eyebrow">Virtual Interviewee</p>
+      <h1>Interview coach</h1>
+    </div>
+    <span class="status"><span class="status-dot"></span>Ready</span>
+  </header>
+
+  <section class="conversation" aria-live="polite">
+    @if (messages.length === 0) {
+      <div class="welcome-state">
+        <div class="welcome-icon" aria-hidden="true">✦</div>
+        <p class="eyebrow">Your practice room</p>
+        <h2>What would you like to work on?</h2>
+        <p class="welcome-copy">
+          Practise answers, explore interview strategies, or get thoughtful feedback on your next response.
+        </p>
+        <div class="suggestions">
+          @for (suggestion of suggestions; track suggestion) {
+            <button type="button" class="suggestion" (click)="useSuggestion(suggestion)">
+              {{ suggestion }}
+              <span aria-hidden="true">→</span>
+            </button>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="message-list">
+        @for (message of messages; track $index) {
+          <article class="message" [class.user-message]="message.role === 'user'">
+            <div class="avatar" [class.user-avatar]="message.role === 'user'" aria-hidden="true">
+              {{ message.role === 'user' ? 'You' : 'V' }}
+            </div>
+            <div class="message-body">
+              <p class="message-author">{{ message.role === 'user' ? 'You' : 'Interviewee' }}</p>
+              <p>{{ message.content }}</p>
+            </div>
+          </article>
+        }
+        @if (isSending) {
+          <article class="message">
+            <div class="avatar" aria-hidden="true">V</div>
+            <div class="message-body typing" aria-label="Interviewee is typing"><span></span><span></span><span></span></div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <footer class="composer-area">
+    <div class="composer">
+      <textarea
+        nz-input
+        [(ngModel)]="draft"
+        (keydown)="handleComposerKeydown($event)"
+        placeholder="Message your interview coach..."
+        rows="1"
+        aria-label="Message your interview coach"
+      ></textarea>
+      <button
+        type="button"
+        class="send-button"
+        [disabled]="!draft.trim() || isSending"
+        (click)="sendMessage()"
+        aria-label="Send message"
+      >
+        Send
+      </button>
+    </div>
+    <p class="composer-hint">Shift + Enter for a new line</p>
+  </footer>
+</main>
