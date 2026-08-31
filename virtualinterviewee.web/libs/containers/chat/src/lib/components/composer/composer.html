@@ -1,0 +1,30 @@
+<div class="composer">
+  <textarea
+    class="composer-input"
+    nz-input
+    rows="1"
+    cdkTextareaAutosize
+    cdkAutosizeMinRows="1"
+    cdkAutosizeMaxRows="5"
+    placeholder="Ask me about my experience, skills, or projects..."
+    [ngModel]="$draft()"
+    [disabled]="$disabled()"
+    (keydown)="onKeydown($event)"
+    (ngModelChange)="$draft.set($event)"
+  ></textarea>
+
+  <button
+    nz-button
+    nzType="primary"
+    nzShape="circle"
+    class="composer-send"
+    [disabled]="$disabled() || !$draft().trim()"
+    (click)="onSend()"
+  >
+    <nz-icon
+      [nzType]="$disabled() ? 'loading' : 'arrow-up'"
+      nzTheme="outline"
+    />
+  </button>
+</div>
+<p class="composer-hint">Enter to send · Shift + Enter for a new line</p>

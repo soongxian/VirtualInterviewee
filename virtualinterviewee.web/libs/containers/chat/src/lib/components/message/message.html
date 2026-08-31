@@ -1,0 +1,26 @@
+<div
+  class="message"
+  [class.message--user]="$message().role === 'user'"
+  [class.message--error]="$message().error"
+>
+  <nz-avatar
+    class="message-avatar"
+    [nzText]="$message().role === 'user' ? 'You' : 'VI'"
+  />
+
+  <div class="message-body">
+    <div class="message-content" [innerHTML]="$renderedContent()"></div>
+
+    @if ($message().role === 'system' && !$message().error) {
+    <button
+      type="button"
+      class="message-copy"
+      nz-tooltip
+      [nzTooltipTitle]="$copied() ? 'Copied!' : 'Copy'"
+      (click)="copyContent()"
+    >
+      <nz-icon nzTheme="outline" [nzType]="$copied() ? 'check' : 'copy'" />
+    </button>
+    }
+  </div>
+</div>

@@ -1,0 +1,112 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  height: 100%;
+  background: var(--vi-sidebar-bg);
+  border-right: 1px solid var(--vi-border);
+  transition: width 0.15s ease;
+  overflow: hidden;
+
+  &--collapsed {
+    width: 56px;
+  }
+
+  &-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  &-collapse {
+    color: var(--vi-text-secondary);
+    flex-shrink: 0;
+  }
+
+  &-new-chat {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
+    color: var(--vi-text-primary);
+    border-color: var(--vi-border);
+    background: transparent;
+
+    &:hover {
+      border-color: var(--vi-accent);
+      color: var(--vi-accent);
+    }
+  }
+
+  &-history {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 8px;
+    overflow-y: auto;
+  }
+
+  &-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px 2px 10px;
+    border-radius: 8px;
+    color: var(--vi-text-secondary);
+
+    &:hover {
+      background: var(--vi-hover);
+      color: var(--vi-text-primary);
+    }
+
+    &--active {
+      background: var(--vi-hover);
+      color: var(--vi-text-primary);
+    }
+  }
+
+  &-item-title {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    padding: 8px 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  &-item-delete {
+    flex-shrink: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--vi-text-secondary);
+    padding: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--vi-danger);
+      background: var(--vi-hover);
+    }
+  }
+
+  &-item:hover &-item-delete {
+    display: flex;
+  }
+
+  &-empty {
+    padding: 8px 10px;
+    color: var(--vi-text-secondary);
+    font-size: 12px;
+  }
+}

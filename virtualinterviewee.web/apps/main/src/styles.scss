@@ -1,1 +1,31 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'ng-zorro-antd/ng-zorro-antd.dark.min.css';
+
+:root {
+  --vi-bg: #121212;
+  --vi-sidebar-bg: #18181a;
+  --vi-panel: #1f1f22;
+  --vi-code-bg: #17171a;
+  --vi-border: #2a2a2e;
+  --vi-hover: #26262a;
+  --vi-text-primary: #e8e8ea;
+  --vi-text-secondary: #8a8a91;
+  --vi-accent: #4fd1c5;
+  --vi-accent-muted: rgba(79, 209, 197, 0.16);
+  --vi-danger: #e5484d;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--vi-bg);
+  color: var(--vi-text-primary);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}

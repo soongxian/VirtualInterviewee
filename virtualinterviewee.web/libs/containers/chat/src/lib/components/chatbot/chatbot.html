@@ -1,24 +1,50 @@
 <div class="chatbot">
-  <div class="chatbot__messages">
-    @for (message of messages(); track $index) {
-    <div
-      class="chatbot__message"
-      [class.chatbot__message--user]="message.role === 'user'"
-    >
-      {{ message.content }}
-    </div>
-    }
-  </div>
+  <lib-sidebar
+    [$conversations]="store.$conversations()"
+    [$activeId]="store.$activeId()"
+    [$collapsed]="$sidebarCollapsed()"
+    (newChat)="newChat()"
+    (selectConversation)="selectConversation($event)"
+    (deleteConversation)="deleteConversation($event)"
+    (toggleCollapsed)="$sidebarCollapsed.set(!$sidebarCollapsed())"
+  />
 
-  <div class="chatbot__input">
-    <input
-      nz-input
-      placeholder="Ask an interview question..."
-      [ngModel]="draftQuestion()"
-      (ngModelChange)="draftQuestion.set($event)"
-      (keydown.enter)="askQuestion()"
-      [disabled]="isAsking()"
-    />
-    <button (click)="askQuestion()" [disabled]="isAsking()">Send</button>
-  </div>
+  <main class="chatbot-main">
+    <div class="chatbot-scroll">
+      @if ($messages().length) {
+      <div class="chatbot-messages">
+        @for (message of $messages(); track message.id) {
+        <lib-message [$message]="message" />
+        } @if ($isAsking()) {
+        <div class="chatbot-typing">
+          <nz-icon nzType="loading" nzTheme="outline" />
+          Thinking...
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="chatbot-welcome">
+        <div class="chatbot-welcome-badge">VI</div>
+        <h1>Virtual Interviewee</h1>
+        <p>
+          Ask me anything about my experience, technical skills, projects, or
+          career background — as if you were interviewing me directly.
+        </p>
+      </div>
+      } @if ($errorMessage()) {
+      <nz-alert
+        class="chatbot-error"
+        nzType="error"
+        nzShowIcon
+        [nzMessage]="$errorMessage()"
+      />
+      }
+
+      <div #scrollAnchor></div>
+    </div>
+
+    <div class="chatbot-composer">
+      <lib-composer [$disabled]="$isAsking()" (send)="askQuestion($event)" />
+    </div>
+  </main>
 </div>

@@ -1,54 +1,86 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NzInputModule } from 'ng-zorro-antd/input';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { catchError, finalize, of, tap } from 'rxjs';
-import { QuestionApiService } from '../../services';
-
-interface ChatMessage {
-  role: 'user' | 'system';
-  content: string;
-}
+import { Sidebar } from '../sidebar/sidebar';
+import { Message } from '../message/message';
+import { Composer } from '../composer/composer';
+import { ConversationStore, QuestionApiService } from '../../services';
 
 @Component({
   selector: 'lib-chatbot',
-  imports: [FormsModule, NzInputModule],
+  imports: [NzAlertModule, NzIconModule, Sidebar, Message, Composer],
   templateUrl: './chatbot.html',
   styleUrl: './chatbot.scss',
 })
 export class Chatbot {
   private readonly interviewApi = inject(QuestionApiService);
+  protected readonly store = inject(ConversationStore);
 
-  protected readonly messages = signal<ChatMessage[]>([]);
-  protected readonly draftQuestion = signal('');
-  protected readonly isAsking = signal(false);
+  @ViewChild('scrollAnchor') private scrollAnchor?: ElementRef<HTMLElement>;
 
-  askQuestion(): void {
-    const question = this.draftQuestion().trim();
-    if (!question || this.isAsking()) {
-      return;
-    }
+  protected readonly $sidebarCollapsed = signal(false);
+  protected readonly $isAsking = signal(false);
+  protected readonly $errorMessage = signal<string | null>(null);
 
-    this.pushMessage('user', question);
-    this.draftQuestion.set('');
-    this.isAsking.set(true);
+  protected readonly $messages = computed(() => this.store.getActiveMessages());
+
+  constructor() {
+    afterNextRender({ write: () => this.scrollToBottom() });
+  }
+
+  newChat(): void {
+    this.store.startNewConversation();
+    this.$errorMessage.set(null);
+  }
+
+  selectConversation(id: string): void {
+    this.store.selectConversation(id);
+    this.$errorMessage.set(null);
+  }
+
+  deleteConversation(id: string): void {
+    this.store.deleteConversation(id);
+    this.$errorMessage.set(null);
+  }
+
+  askQuestion(question: string): void {
+    this.$errorMessage.set(null);
+    this.store.addUserMessage(question);
+    this.$isAsking.set(true);
+    this.scrollToBottom();
 
     this.interviewApi
       .question(question)
       .pipe(
-        tap((response) => this.pushMessage('system', response.answer)),
+        tap((response) => this.store.addMessage(response.answer)),
         catchError(() => {
-          this.pushMessage(
-            'system',
-            'Something went wrong answering that question.',
+          this.$errorMessage.set(
+            'Something went wrong answering that question. Please try again.',
           );
           return of(null);
         }),
-        finalize(() => this.isAsking.set(false)),
+        finalize(() => {
+          this.$isAsking.set(false);
+          this.scrollToBottom();
+        }),
       )
       .subscribe();
   }
 
-  private pushMessage(role: ChatMessage['role'], content: string): void {
-    this.messages.update((current) => [...current, { role, content }]);
+  private scrollToBottom(): void {
+    queueMicrotask(() =>
+      this.scrollAnchor?.nativeElement.scrollIntoView?.({
+        behavior: 'smooth',
+      }),
+    );
   }
 }

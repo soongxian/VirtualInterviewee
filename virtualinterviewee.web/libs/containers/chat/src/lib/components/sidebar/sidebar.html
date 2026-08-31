@@ -1,0 +1,59 @@
+<aside class="sidebar" [class.sidebar--collapsed]="$collapsed()">
+  <div class="sidebar-header">
+    <button
+      nz-button
+      nzType="text"
+      class="sidebar-collapse"
+      nz-tooltip
+      [nzTooltipTitle]="$collapsed() ? 'Expand' : 'Collapse'"
+      (click)="toggleCollapsed.emit()"
+    >
+      <nz-icon
+        [nzType]="$collapsed() ? 'menu-unfold' : 'menu-fold'"
+        nzTheme="outline"
+      />
+    </button>
+
+    @if (!$collapsed()) {
+    <button
+      nz-button
+      nzType="default"
+      class="sidebar-new-chat"
+      (click)="newChat.emit()"
+    >
+      <nz-icon nzType="plus" nzTheme="outline" />
+      New chat
+    </button>
+    }
+  </div>
+
+  @if (!$collapsed()) {
+  <nav class="sidebar-history">
+    @for (conversation of $conversations(); track conversation.id) {
+    <div
+      class="sidebar-item"
+      [class.sidebar-item--active]="conversation.id === $activeId()"
+    >
+      <button
+        type="button"
+        class="sidebar-item-title"
+        (click)="selectConversation.emit(conversation.id)"
+      >
+        {{ conversation.title || 'New conversation' }}
+      </button>
+      <button
+        type="button"
+        class="sidebar-item-delete"
+        nz-tooltip
+        nzTooltipTitle="Delete"
+        (click)="deleteConversation.emit(conversation.id); $event.stopPropagation()"
+      >
+        <nz-icon nzType="delete" nzTheme="outline" />
+      </button>
+    </div>
+    } @empty {
+    <p class="sidebar-empty">No conversations yet</p>
+    }
+  </nav>
+  }
+</aside>
