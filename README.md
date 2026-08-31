@@ -44,3 +44,6 @@ npm run dev
 ```
 
 Once both applications are running, you can start chatting with your virtual interviewee.
+
+## Demo
+https://youtu.be/hDh5ZjEj4lY
