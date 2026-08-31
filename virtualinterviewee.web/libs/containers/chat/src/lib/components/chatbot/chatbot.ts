@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { catchError, finalize, of, tap } from 'rxjs';
+import { QuestionApiService } from '../../services';
 
 interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'system';
   content: string;
 }
 
@@ -14,50 +16,39 @@ interface ChatMessage {
   styleUrl: './chatbot.scss',
 })
 export class Chatbot {
-  protected draft = '';
-  protected isSending = false;
-  protected messages: ChatMessage[] = [];
+  private readonly interviewApi = inject(QuestionApiService);
 
-  protected readonly suggestions = [
-    'Help me prepare for an interview',
-    'Improve my answer to “Tell me about yourself”',
-    'Give me a JavaScript coding question',
-  ];
+  protected readonly messages = signal<ChatMessage[]>([]);
+  protected readonly draftQuestion = signal('');
+  protected readonly isAsking = signal(false);
 
-  protected useSuggestion(suggestion: string): void {
-    this.draft = suggestion;
-  }
-
-  protected sendMessage(): void {
-    const content = this.draft.trim();
-
-    if (!content || this.isSending) {
+  askQuestion(): void {
+    const question = this.draftQuestion().trim();
+    if (!question || this.isAsking()) {
       return;
     }
 
-    this.messages = [...this.messages, { role: 'user', content }];
-    this.draft = '';
-    this.isSending = true;
+    this.pushMessage('user', question);
+    this.draftQuestion.set('');
+    this.isAsking.set(true);
 
-    window.setTimeout(() => {
-      this.messages = [
-        ...this.messages,
-        {
-          role: 'assistant',
-          content:
-            'I can help with that. Tell me about the role you are preparing for, and we can practise a focused answer together.',
-        },
-      ];
-      this.isSending = false;
-    }, 10);
+    this.interviewApi
+      .question(question)
+      .pipe(
+        tap((response) => this.pushMessage('system', response.answer)),
+        catchError(() => {
+          this.pushMessage(
+            'system',
+            'Something went wrong answering that question.',
+          );
+          return of(null);
+        }),
+        finalize(() => this.isAsking.set(false)),
+      )
+      .subscribe();
   }
 
-  protected handleComposerKeydown(event: Event): void {
-    const keyboardEvent = event as KeyboardEvent;
-
-    if (keyboardEvent.key === 'Enter' && !keyboardEvent.shiftKey) {
-      keyboardEvent.preventDefault();
-      this.sendMessage();
-    }
+  private pushMessage(role: ChatMessage['role'], content: string): void {
+    this.messages.update((current) => [...current, { role, content }]);
   }
 }

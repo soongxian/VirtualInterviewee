@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="VirtualInterviewee.Api/VirtualInterviewee.Api.csproj" />
+  <Project Path="VirtualInterviewee.Application/VirtualInterviewee.Application.csproj" />
+  <Project Path="VirtualInterviewee.Domain/VirtualInterviewee.Domain.csproj" />
+  <Project Path="VirtualInterviewee.Infrastructure/VirtualInterviewee.Infrastructure.csproj" />
+</Solution>
